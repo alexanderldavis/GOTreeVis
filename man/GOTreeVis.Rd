@@ -8,8 +8,8 @@ GOTreeVis(disp_data, out_file, b_rootlabel = "",
   b_sidelabels = c("GO:MF", "GO:BP"), b_parse = F,
   plot_pvalue_labels = T, root_color = "black",
   colors = c("deepskyblue3", "seagreen3"), oneside = NULL,
-  font = "sans", pval_scaling = 1.9, br_spacing = 4, tr_width = 4,
-  tr_min_size = 2, tr_max_size = 4, br_angle = 1/7,
+  font = "sans", pval_scaling = 1.9, br_spacing = 5, tr_width = 4,
+  br_min_size = 2, br_max_size = 4, br_angle = 1/7,
   br_textoffset_x = 0, br_textoffset_y = 0, br_offset = NA,
   plot_size = 8, label_size = 4, expand_x = c(0.1, 0.1))
 }
@@ -17,13 +17,14 @@ GOTreeVis(disp_data, out_file, b_rootlabel = "",
 \item{disp_data}{Enrichment data to visualize.
 Four columns: \enumerate{
 \item Term
-\item Pvalue
-\item Count (i.e. number of genes matching the term)
-\item a column used to determine the side of the tree, e.g. ontology (BP/MF)
+\item Pvalue - scales the length of the branches
+\item Count (i.e. number of genes matching the term) - scales the thickness of the branches.
+If this scaling is not needed, this column should be set to all equal values. All branches will then be set to min_size.
+\item a column used to determine the side of the tree, e.g. ontology (BP/MF).
 }
-                                In case of a one-sided tree (see oneside parameter) the fourth column can be omitted.
-                                The side column should be a factor with two levels (first level = left, second = right).
-                                For character side columns a factor will be generated (levels will be in alphabetical order).}
+In case of a one-sided tree (see oneside parameter) the fourth column can be omitted.
+The side column should be a factor with two levels (first level = left, second = right).
+For character side columns a factor will be generated (levels will be in alphabetical order).}
 
 \item{out_file}{pdf output file of the graph}
 
@@ -47,9 +48,9 @@ Four columns: \enumerate{
 
 \item{tr_width}{Adjusts the width of the trunk. [default: 4]}
 
-\item{tr_min_size}{Sets the count->branch_width scale. Defines the size(width) of the branch with the smallest count value. [default: 2]}
+\item{br_min_size}{Sets the count->branch_width scale. Defines the size(width) of the branch with the smallest count value. [default: 2]}
 
-\item{tr_max_size}{Sets the count->branch_width scale. Defines the size(width) of the branch with the highest count value. [default: 4]}
+\item{br_max_size}{Sets the count->branch_width scale. Defines the size(width) of the branch with the highest count value. [default: 4]}
 
 \item{br_angle}{Angle of the branches in radians as multiples of pi. [default: 1/7, equal to 180°/7]}
 
@@ -69,5 +70,5 @@ Four columns: \enumerate{
 PDF file (out_file)
 }
 \description{
-\code{outputGOTree} creates a GOTree visualisation of GO enrichment data and writes it to a pdf file.
+\code{GOTreeVis} creates a GOTree visualisation of GO enrichment data and writes it to a pdf file.
 }

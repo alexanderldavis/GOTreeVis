@@ -1,15 +1,17 @@
 Package: GOTreeVis
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Tree Visualization for Enrichment Results.
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Authors@R: person("Christoph", "Dotter", email = "christoph.dotter@gmail.com",
+  role = c("aut", "cre"))
+Description: Implementation of a visualization for enrichment results in the
+    form of a tree-shaped plot. Data displayed are the enrichment p-value
+    (as branch length) as well as a second parameter, e.g. the number of
+    overlapping genes, scaling the branch thickness.
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
 Imports:
-  plyr,
-  ggplot2
+  plyr (>= 1.8.4),
+  ggplot2 (>= 3.1.0)

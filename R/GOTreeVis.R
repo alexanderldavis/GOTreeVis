@@ -3,18 +3,19 @@ library(plyr)
 
 #' Tree visualization for Gene Ontology enrichment results.
 #'
-#' \code{outputGOTree} creates a GOTree visualisation of GO enrichment data and writes it to a pdf file.
+#' \code{GOTreeVis} creates a GOTree visualisation of GO enrichment data and writes it to a pdf file.
 #'
 #' @param disp_data Enrichment data to visualize.
 #' Four columns: \enumerate{
 #' \item Term
-#' \item Pvalue
-#' \item Count (i.e. number of genes matching the term)
-#' \item a column used to determine the side of the tree, e.g. ontology (BP/MF)
+#' \item Pvalue - scales the length of the branches
+#' \item Count (i.e. number of genes matching the term) - scales the thickness of the branches.
+#' If this scaling is not needed, this column should be set to all equal values. All branches will then be set to min_size.
+#' \item a column used to determine the side of the tree, e.g. ontology (BP/MF).
 #' }
-#'                                 In case of a one-sided tree (see oneside parameter) the fourth column can be omitted.
-#'                                 The side column should be a factor with two levels (first level = left, second = right).
-#'                                 For character side columns a factor will be generated (levels will be in alphabetical order).
+#' In case of a one-sided tree (see oneside parameter) the fourth column can be omitted.
+#' The side column should be a factor with two levels (first level = left, second = right).
+#' For character side columns a factor will be generated (levels will be in alphabetical order).
 #' @param out_file pdf output file of the graph
 #' @param b_rootlabel Text for the label at the root of the tree. [default: ""]
 #' @param b_sidelabels Text for the labels on each side; The first value corresponds to the left side. [default: ('GO:MF','GO:BP')]
@@ -27,8 +28,8 @@ library(plyr)
 #' @param pval_scaling      Scaling factor between -log(pvalue) and branch length; can be used to scale the tree in x dimension. [default: 1.9]
 #' @param br_spacing        Spacing between branches. Can be used to scale the tree in y dimension. [default: 5]
 #' @param tr_width          Adjusts the width of the trunk. [default: 4]
-#' @param tr_min_size       Sets the count->branch_width scale. Defines the size(width) of the branch with the smallest count value. [default: 2]
-#' @param tr_max_size       Sets the count->branch_width scale. Defines the size(width) of the branch with the highest count value. [default: 4]
+#' @param br_min_size       Sets the count->branch_width scale. Defines the size(width) of the branch with the smallest count value. [default: 2]
+#' @param br_max_size       Sets the count->branch_width scale. Defines the size(width) of the branch with the highest count value. [default: 4]
 #' @param br_angle          Angle of the branches in radians as multiples of pi. [default: 1/7, equal to 180°/7]
 #' @param br_textoffset_x   Manually offset the text from the branches (x-axis). [default: 0]
 #' @param br_textoffset_y   Manually offset the text from the branches (y-axis). [default: 0]
@@ -44,7 +45,7 @@ GOTreeVis <- function(disp_data, out_file,
                          b_rootlabel = "", b_sidelabels = c("GO:MF", "GO:BP"), b_parse = F,
                          plot_pvalue_labels = T,root_color = "black", colors = c("deepskyblue3", "seagreen3"),
                          oneside = NULL, font = "sans",
-                         pval_scaling = 1.9, br_spacing = 4, tr_width = 4, tr_min_size = 2, tr_max_size = 4,
+                         pval_scaling = 1.9, br_spacing = 5, tr_width = 4, br_min_size = 2, br_max_size = 4,
                          br_angle = 1/7, br_textoffset_x = 0, br_textoffset_y = 0, br_offset = NA,
                          plot_size = 8, label_size = 4, expand_x = c(0.1, 0.1)) {
     # internal parameters
@@ -59,20 +60,13 @@ GOTreeVis <- function(disp_data, out_file,
     # higher numbers are needed to expand)
     if (!is.null(oneside)) {
         disp_data[, side_col] <- factor(rep(oneside, nrow(disp_data)), levels = c("l", "r"))
-        if (oneside == "r") {
-            expand_x <- c(0.2, 0.6)
-            # disp_data[,side_col]<-relevel(disp_data[,side_col],ref = 'blank')
-        } else {
-            expand_x <- c(0.6, 0.2)
-            # disp_data[,side_col]<-as.factor(disp_data[,side_col])
-        }
+        if(oneside == "r") expand_x <- c(0.2, 0.6)
+        else expand_x <- c(0.6, 0.2)
     }
-
     # check correctness of data.frame to display.
     if (ncol(disp_data) != 4 |
-        class(disp_data[, text_col]) != "character" |
-        class(disp_data[, pval_col]) != "numeric" |
-        class(disp_data[, count_col]) != "integer") {
+        ! is.character(disp_data[, text_col]) | ! is.numeric(disp_data[, pval_col]) |
+        ! is.numeric(disp_data[, count_col])) {
         stop("Input data.frame columns have to be: (1) Term, (2) Pvalue, (3) Count, (4) side_col")
     }
 
@@ -112,8 +106,9 @@ GOTreeVis <- function(disp_data, out_file,
     # define scale for count (translates to branch width)
     min_count <- min(disp_data[, count_col])
     max_count <- max(disp_data[, count_col])
-    dist_count <- max_count - min_count
-    dist_size <- tr_max_size - tr_min_size
+    # if all values are the same, set dist to 1, in this case all will be scaled to min_size
+    dist_count <- ifelse(max_count == min_count, 1, max_count - min_count)
+    dist_size <- br_max_size - br_min_size
 
     # for text labels: offset from the trunk
     x_off <- 2.5 + tr_width/8
@@ -124,9 +119,9 @@ GOTreeVis <- function(disp_data, out_file,
         lp <- log(row[[pval_col]], base = 10)  # log10(pvalue)
 
         # rescale count to size scale (defined by br_min_size/br_max_size)
-        size <- tr_min_size + (row[[count_col]] - min_count)/dist_count * dist_size
+        size <- br_min_size + (row[[count_col]] - min_count)/dist_count * dist_size
         # scale y-offset of text_labels with branch size
-        text_y_offset <- 0.7 + br_textoffset_y + size/4
+        text_y_offset <- 0.7 + br_textoffset_y + size/4 + ifelse(is.null(oneside),0,0.2)
 
         if (row[[side_col]] == levels(row[[side_col]])[1]) {
             # left branches
@@ -155,7 +150,6 @@ GOTreeVis <- function(disp_data, out_file,
         return(newBranch)
     })
 
-
     # base - plotdata for root label ####
     base <- data.frame(xst = tr_x, yst = tr_yst, text = b_rootlabel)
 
@@ -165,7 +159,7 @@ GOTreeVis <- function(disp_data, out_file,
         max_pval_l <- max(treedata[treedata$side == "l", ]$len/pval_scaling)
         max_pval_r <- max(treedata[treedata$side == "r", ]$len/pval_scaling)
     } else {
-        max_pval_l <- max(treedata$len/1.9)
+        max_pval_l <- max(treedata$len/pval_scaling)
         max_pval_r <- max_pval_l
     }
     # maximum p value displayed on the axis (next multiple of 5 after the maximum in the data; at least 10^-10)
@@ -222,11 +216,9 @@ GOTreeVis <- function(disp_data, out_file,
                              text = b_sidelabels, side = c("l", "r"), stringsAsFactors = F)
     if (!is.null(oneside)) {
         if (oneside == "l") {
-            # baseaxis$col[baseaxis$xst>tr_x_l]<-'white'
             baseaxis <- baseaxis[baseaxis$xst < tr_x_l, ]
             baselabels <- baselabels[baselabels$x < tr_x_l, ]
         } else if (oneside == "r") {
-            # baseaxis$col[baseaxis$xst<tr_x_l]<-'white'
             baseaxis <- baseaxis[baseaxis$xst > tr_x_l, ]
             baselabels <- baselabels[baselabels$x > tr_x_l, ]
         }
@@ -259,7 +251,7 @@ GOTreeVis <- function(disp_data, out_file,
                             size = 0.4, color = "black", show.legend = F)
     # labels for p-value axis
     if (plot_pvalue_labels) {
-        gg <- gg + geom_text(data = baseaxis[-c(1, 2), ], aes(x = xst, y = yst - 1.2,
+        gg <- gg + geom_text(data = baseaxis, aes(x = xst, y = yst - 1.2,
                                                               hjust = 1, vjust = 1, label = text),
                              family=font, size = label_size, angle = 45, show.legend = F, color = "black", parse = T)
     }
