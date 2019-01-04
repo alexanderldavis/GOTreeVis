@@ -26,7 +26,7 @@ In case of a one-sided tree (see oneside parameter) the fourth column can be omi
 The side column should be a factor with two levels (first level = left, second = right).
 For character side columns a factor will be generated (levels will be in alphabetical order).}
 
-\item{out_file}{pdf output file of the graph}
+\item{out_file}{Filename of the output file. The name must end with a valid file extension to define the graphics device. PDF output is recommended.}
 
 \item{b_rootlabel}{Text for the label at the root of the tree. [default: ""]}
 

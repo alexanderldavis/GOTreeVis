@@ -16,7 +16,7 @@ library(plyr)
 #' In case of a one-sided tree (see oneside parameter) the fourth column can be omitted.
 #' The side column should be a factor with two levels (first level = left, second = right).
 #' For character side columns a factor will be generated (levels will be in alphabetical order).
-#' @param out_file pdf output file of the graph
+#' @param out_file Filename of the output file. The name must end with a valid file extension to define the graphics device. PDF output is recommended.
 #' @param b_rootlabel Text for the label at the root of the tree. [default: ""]
 #' @param b_sidelabels Text for the labels on each side; The first value corresponds to the left side. [default: ('GO:MF','GO:BP')]
 #' @param root_color    Color for the 'root' box at the bottom of the tree. Applies to text and border. [default: black]
