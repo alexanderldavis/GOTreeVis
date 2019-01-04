@@ -67,9 +67,11 @@ GOTreeVis <- function(disp_data, out_file,
     if (ncol(disp_data) != 4 |
         ! is.character(disp_data[, text_col]) | ! is.numeric(disp_data[, pval_col]) |
         ! is.numeric(disp_data[, count_col])) {
-        stop("Input data.frame columns have to be: (1) Term, (2) Pvalue, (3) Count, (4) side_col")
+        stop("Input data.frame columns have to be: (1) Term, (2) Pvalue, (3) Count, (4) side_col!")
     }
-
+    if (br_min_size >= br_max_size) {
+      stop("br_min_size must be different from and smaller than br_max_size!")
+    }
     # set ranks to set branch locations
     disp_data$rank <- 0
     oldO <- disp_data[1, side_col]
