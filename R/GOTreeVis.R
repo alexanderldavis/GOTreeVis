@@ -19,6 +19,7 @@ library(plyr)
 #' @param out_file Filename of the output file. The name must end with a valid file extension to define the graphics device. PDF output is recommended.
 #' @param b_rootlabel Text for the label at the root of the tree. [default: ""]
 #' @param b_sidelabels Text for the labels on each side; The first value corresponds to the left side. [default: ('GO:MF','GO:BP')]
+#' @param b_parse Parse text for root and side labels using plotmath. Can be used to plot labels containing superscript or subscript.
 #' @param root_color    Color for the 'root' box at the bottom of the tree. Applies to text and border. [default: black]
 #' @param colors        Colors for the two sides of the tree, again first=left. [default: blue/green]
 #' @param plot_pvalue_labels  Should the p-value labels on the axis be plotted or not? [default: T]

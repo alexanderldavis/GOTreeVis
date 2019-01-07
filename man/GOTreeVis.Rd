@@ -32,6 +32,8 @@ For character side columns a factor will be generated (levels will be in alphabe
 
 \item{b_sidelabels}{Text for the labels on each side; The first value corresponds to the left side. [default: ('GO:MF','GO:BP')]}
 
+\item{b_parse}{Parse text for root and side labels using plotmath. Can be used to plot labels containing superscript or subscript.}
+
 \item{plot_pvalue_labels}{Should the p-value labels on the axis be plotted or not? [default: T]}
 
 \item{root_color}{Color for the 'root' box at the bottom of the tree. Applies to text and border. [default: black]}
