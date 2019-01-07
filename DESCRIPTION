@@ -1,7 +1,7 @@
 Package: GOTreeVis
 Type: Package
 Title: Tree Visualization for Enrichment Results.
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: person("Christoph", "Dotter", email = "christoph.dotter@gmail.com",
   role = c("aut", "cre"))
 Description: Implementation of a visualization for enrichment results in the
