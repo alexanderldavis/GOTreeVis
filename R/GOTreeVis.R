@@ -68,7 +68,12 @@ GOTreeVis <- function(disp_data, out_file,
     if (ncol(disp_data) != 4 |
         ! is.character(disp_data[[text_col]]) | ! is.numeric(disp_data[[pval_col]]) |
         ! is.numeric(disp_data[[count_col]])) {
-      stop("Input data.frame columns have to be: Term (character), Pvalue (numeric), Count (numeric), side_col!")
+      stop("Input data.frame has to have exactly 4 columns with the following content and order:
+            \t1) Term\t\t(character)
+            \t2) Pvalue\t(numeric)
+            \t3) Count\t(numeric)
+            \t4) Side\t\t(recommended: factor with 2 levels).
+            \t(required type noted in brackets, column names are not important)")
     }
     if (br_min_size >= br_max_size) {
       stop("br_min_size must be different from and smaller than br_max_size!")
