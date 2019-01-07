@@ -232,10 +232,18 @@ GOTreeVis <- function(disp_data, out_file,
 
     # baselabels - plotdata for side labels####
 
-    # position labels between first and second tick (the only ticks that are guaranteed to be there)
-    firsttick_l <- max(baseaxis[-c(1:3), ][baseaxis[-c(1:3), "xst"] < tr_x, "xst"])
-    firsttick_r <- min(baseaxis[-c(1:3), ][baseaxis[-c(1:3), "xst"] > tr_x, "xst"])
-    bl_x <- c(firsttick_l - (tr_x_l - firsttick_l) * 0.5, firsttick_r - (tr_x_r - firsttick_r) * 0.5)
+    # position labels between ticks in the middle of the axis (same position on both axes, determined by shorter axis)
+    ax_l<-baseaxis[baseaxis$text!="" & baseaxis$xst < tr_x,"xst"]
+    ax_r<-baseaxis[baseaxis$text!="" & baseaxis$xst > tr_x,"xst"]
+    if(length(ax_l) > length(ax_r))
+      mid<-as.integer(length(ax_r)/2)+1
+    else
+      mid<-as.integer(length(ax_l)/2)+1
+    # position between two ticks:
+    labeltick_l <- ax_l[mid] - (ax_l[mid] - ax_l[mid-1])/2
+    labeltick_r <- ax_r[mid] - (ax_r[mid] - ax_r[mid-1])/2
+    #bl_x <- c(labeltick_l - (tr_x_l - labeltick_l) * 0.5, labeltick_r - (tr_x_r - labeltick_r) * 0.5)
+    bl_x <- c(labeltick_l, labeltick_r)
     baselabels <- data.frame(x = bl_x, y = rep(tr_yst + 0.45, 2), just = 0.5,
                              text = b_sidelabels, side = c("l", "r"), stringsAsFactors = F)
     if (!is.null(oneside)) {
