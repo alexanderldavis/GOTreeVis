@@ -2,13 +2,13 @@
 % Please edit documentation in R/GOTreeVis.R
 \name{GOTreeVis}
 \alias{GOTreeVis}
-\title{Tree visualization for Gene Ontology enrichment results.}
+\title{Tree visualization for Gene Ontology enrichment results}
 \usage{
 GOTreeVis(disp_data, out_file, b_rootlabel = "",
   b_sidelabels = c("GO:MF", "GO:BP"), b_parse = F,
   plot_pvalue_labels = T, root_color = "black",
   colors = c("deepskyblue3", "seagreen3"), oneside = NULL,
-  font = "sans", pval_scaling = 1.9, br_spacing = 5, tr_width = 4,
+  font = "sans", pval_scaling = NA, br_spacing = NA, tr_width = 4,
   br_min_size = 2, br_max_size = 4, br_angle = 1/7,
   br_textoffset_x = 0, br_textoffset_y = 0, br_offset = NA,
   plot_size = 8, label_size = 4, expand_x = c(0.1, 0.1))

@@ -1,7 +1,7 @@
 library(ggplot2)
 library(plyr)
 
-#' Tree visualization for Gene Ontology enrichment results.
+#' Tree visualization for Gene Ontology enrichment results
 #'
 #' \code{GOTreeVis} creates a GOTree visualisation of GO enrichment data and writes it to a pdf file.
 #'
@@ -46,7 +46,9 @@ GOTreeVis <- function(disp_data, out_file,
                          b_rootlabel = "", b_sidelabels = c("GO:MF", "GO:BP"), b_parse = F,
                          plot_pvalue_labels = T,root_color = "black", colors = c("deepskyblue3", "seagreen3"),
                          oneside = NULL, font = "sans",
-                         pval_scaling = 1.9, br_spacing = 5, tr_width = 4, br_min_size = 2, br_max_size = 4,
+                         #pval_scaling = 1.9, br_spacing = 5,
+                         pval_scaling = NA, br_spacing = NA,
+                         tr_width = 4, br_min_size = 2, br_max_size = 4,
                          br_angle = 1/7, br_textoffset_x = 0, br_textoffset_y = 0, br_offset = NA,
                          plot_size = 8, label_size = 4, expand_x = c(0.1, 0.1)) {
     # internal parameters
@@ -60,21 +62,23 @@ GOTreeVis <- function(disp_data, out_file,
     # set up side column, especially in case of a onesided plot.  in case of onesided plot expand_x is changed (plot is less wide, so
     # higher numbers are needed to expand)
     if (!is.null(oneside)) {
-        disp_data[[side_col]] <- factor(rep(oneside, nrow(disp_data)), levels = c("l", "r"))
-        if(oneside == "r") expand_x <- c(0.2, 0.6)
-        else expand_x <- c(0.6, 0.2)
-    } else {
-      disp_data[[side_col]] <- as.factor(disp_data[[side_col]])
+      disp_data[[side_col]] <- factor(rep(oneside, nrow(disp_data)), levels = c("l", "r"))
+      if(oneside == "r") expand_x <- c(0.2, 0.6)
+      else expand_x <- c(0.6, 0.2)
     }
+
     # check correctness of data.frame to display.
     if (ncol(disp_data) != 4 |
         ! is.character(disp_data[[text_col]]) | ! is.numeric(disp_data[[pval_col]]) |
         ! is.numeric(disp_data[[count_col]])) {
-        stop("Input data.frame columns have to be: (1) Term, (2) Pvalue, (3) Count, (4) side_col!")
+      stop("Input data.frame columns have to be: Term (character), Pvalue (numeric), Count (numeric), side_col!")
     }
     if (br_min_size >= br_max_size) {
       stop("br_min_size must be different from and smaller than br_max_size!")
     }
+    if(!is.factor(disp_data[[side_col]]))
+      disp_data[[side_col]] <- as.factor(disp_data[[side_col]])
+
     # set ranks to set branch locations
     disp_data$rank <- 0
     oldO <- disp_data[1, side_col]
@@ -89,19 +93,28 @@ GOTreeVis <- function(disp_data, out_file,
         oldR <- disp_data[i, "rank"]
         oldO <- currO
     }
+    # derive base values for spacing and p-value scaling from data
+    if (is.na(br_spacing)){
+      br_spacing <- round(54 / nrow(disp_data),0)
+      print(paste("br_spacing set to",br_spacing))
+    }
+
     # set offset for first branch (if not set it's slightly offset from the top)
     if (is.na(br_offset))
-        br_offset <- br_spacing/2.7
+        br_offset <- br_spacing / 2.7
 
     # trunkdata - plotdata for trunk #### set trunk length based on br_spacing
-    tr_len <- br_spacing * max(disp_data$rank) + br_spacing/3
-    tr_x_offs <- tr_width/4
+    tr_len <- br_spacing * max(disp_data$rank) + br_spacing / 3
+    tr_x_offs <- tr_width / 4
     tr_x_l <- tr_x - tr_x_offs
     tr_x_r <- tr_x + tr_x_offs
     trunkdata <- data.frame(xmin = c(tr_x_l, tr_x_r) - tr_x_offs, xmax = c(tr_x_l, tr_x_r) + tr_x_offs,
                             ymin = tr_yst, ymax = tr_yst + tr_len, side = c("l", "r"), stringsAsFactors = F)
     if (!is.null(oneside))
         trunkdata <- trunkdata[trunkdata$side == oneside, ]
+
+    # base - plotdata for root label ####
+    base <- data.frame(xst = tr_x, yst = tr_yst, text = b_rootlabel)
 
     # treedata - plotdata for branches ####
 
@@ -148,29 +161,35 @@ GOTreeVis <- function(disp_data, out_file,
         }
         newBranch <- data.frame(xst = trunk_x, yst = yst,
                                 angle = lineangle,textangle = textangle,
-                                len = -lp * pval_scaling, size = size,
+                                len = -lp, size = size,
                                 text = row[[text_col]], text_x_offset = text_x_offset,
                                 text_y_offset = text_y_offset, just = just,
                                 side = side, stringsAsFactors = F)
         return(newBranch)
     })
 
-    # base - plotdata for root label ####
-    base <- data.frame(xst = tr_x, yst = tr_yst, text = b_rootlabel)
-
-
-    # baseaxis - plotdata for p value axis####
+    # get maximum -log10(pvalue) for each side
     if (is.null(oneside)) {
-        max_pval_l <- max(treedata[treedata$side == "l", ]$len/pval_scaling)
-        max_pval_r <- max(treedata[treedata$side == "r", ]$len/pval_scaling)
+      max_pval_l <- max(treedata[treedata$side == "l", ]$len)
+      max_pval_r <- max(treedata[treedata$side == "r", ]$len)
     } else {
-        max_pval_l <- max(treedata$len/pval_scaling)
-        max_pval_r <- max_pval_l
+      max_pval_l <- max(treedata$len)
+      max_pval_r <- max_pval_l
     }
     # maximum p value displayed on the axis (next multiple of 5 after the maximum in the data; at least 10^-10)
     ax_pval_max_l <- max(10, ceiling(max_pval_l/5) * 5)
     ax_pval_max_r <- max(10, ceiling(max_pval_r/5) * 5)
 
+    if(is.na(pval_scaling)) {
+      sum_x <- ax_pval_max_l + ifelse(is.null(oneside), ax_pval_max_r, 0)
+      pval_scaling <- round(tr_len / sum_x * 1.5,1)
+      print(paste("pval_scaling set to",pval_scaling))
+    }
+    # scale p-value:
+    treedata$len <- treedata$len * pval_scaling
+
+
+    # baseaxis - plotdata for p value axis####
     # calculate x-axis projections for largest p-values to derive p-value scale on the x-axis (fact_pval_to_xlen).
     if (!is.null(oneside)) {
         if (oneside == "r") {
