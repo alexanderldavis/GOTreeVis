@@ -59,14 +59,16 @@ GOTreeVis <- function(disp_data, out_file,
     # set up side column, especially in case of a onesided plot.  in case of onesided plot expand_x is changed (plot is less wide, so
     # higher numbers are needed to expand)
     if (!is.null(oneside)) {
-        disp_data[, side_col] <- factor(rep(oneside, nrow(disp_data)), levels = c("l", "r"))
+        disp_data[[side_col]] <- factor(rep(oneside, nrow(disp_data)), levels = c("l", "r"))
         if(oneside == "r") expand_x <- c(0.2, 0.6)
         else expand_x <- c(0.6, 0.2)
+    } else {
+      disp_data[[side_col]] <- as.factor(disp_data[[side_col]])
     }
     # check correctness of data.frame to display.
     if (ncol(disp_data) != 4 |
-        ! is.character(disp_data[, text_col]) | ! is.numeric(disp_data[, pval_col]) |
-        ! is.numeric(disp_data[, count_col])) {
+        ! is.character(disp_data[[text_col]]) | ! is.numeric(disp_data[[pval_col]]) |
+        ! is.numeric(disp_data[[count_col]])) {
         stop("Input data.frame columns have to be: (1) Term, (2) Pvalue, (3) Count, (4) side_col!")
     }
     if (br_min_size >= br_max_size) {
@@ -106,8 +108,8 @@ GOTreeVis <- function(disp_data, out_file,
     top_branch <- tr_yst + tr_len - br_offset
 
     # define scale for count (translates to branch width)
-    min_count <- min(disp_data[, count_col])
-    max_count <- max(disp_data[, count_col])
+    min_count <- min(disp_data[[count_col]])
+    max_count <- max(disp_data[[count_col]])
     # if all values are the same, set dist to 1, in this case all will be scaled to min_size
     dist_count <- ifelse(max_count == min_count, 1, max_count - min_count)
     dist_size <- br_max_size - br_min_size
