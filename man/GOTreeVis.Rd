@@ -44,9 +44,9 @@ For character side columns a factor will be generated (levels will be in alphabe
 
 \item{font}{Font family to be used for the text in the plot [default: sans]}
 
-\item{pval_scaling}{Scaling factor between -log(pvalue) and branch length; can be used to scale the tree in x dimension. [default: 1.9]}
+\item{pval_scaling}{Scaling factor between -log(pvalue) and branch length; Gets generated automatically from the dimensions of the data if left unset (recommended for first run). Can be used to scale the tree in x dimension. [default: NA]}
 
-\item{br_spacing}{Spacing between branches. Can be used to scale the tree in y dimension. [default: 5]}
+\item{br_spacing}{Spacing between branches. Gets generated automatically from the dimensions of the data if left unset (recommended for first run). Can be used to scale the tree in y dimension. [default: NA]}
 
 \item{tr_width}{Adjusts the width of the trunk. [default: 4]}
 

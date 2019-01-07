@@ -1,6 +1,3 @@
-library(ggplot2)
-library(plyr)
-
 #' Tree visualization for Gene Ontology enrichment results
 #'
 #' \code{GOTreeVis} creates a GOTree visualisation of GO enrichment data and writes it to a pdf file.
@@ -26,8 +23,8 @@ library(plyr)
 #' @param font          Font family to be used for the text in the plot [default: sans]
 #' @param oneside       Special functionality in case only one category should be plotted.
 # possible values: 'l' or 'r', meaning all data will be plotted left or right.
-#' @param pval_scaling      Scaling factor between -log(pvalue) and branch length; can be used to scale the tree in x dimension. [default: 1.9]
-#' @param br_spacing        Spacing between branches. Can be used to scale the tree in y dimension. [default: 5]
+#' @param pval_scaling      Scaling factor between -log(pvalue) and branch length; Gets generated automatically from the dimensions of the data if left unset (recommended for first run). Can be used to scale the tree in x dimension. [default: NA]
+#' @param br_spacing        Spacing between branches. Gets generated automatically from the dimensions of the data if left unset (recommended for first run). Can be used to scale the tree in y dimension. [default: NA]
 #' @param tr_width          Adjusts the width of the trunk. [default: 4]
 #' @param br_min_size       Sets the count->branch_width scale. Defines the size(width) of the branch with the smallest count value. [default: 2]
 #' @param br_max_size       Sets the count->branch_width scale. Defines the size(width) of the branch with the highest count value. [default: 4]
@@ -242,7 +239,6 @@ GOTreeVis <- function(disp_data, out_file,
     # position between two ticks:
     labeltick_l <- ax_l[mid] - (ax_l[mid] - ax_l[mid-1])/2
     labeltick_r <- ax_r[mid] - (ax_r[mid] - ax_r[mid-1])/2
-    #bl_x <- c(labeltick_l - (tr_x_l - labeltick_l) * 0.5, labeltick_r - (tr_x_r - labeltick_r) * 0.5)
     bl_x <- c(labeltick_l, labeltick_r)
     baselabels <- data.frame(x = bl_x, y = rep(tr_yst + 0.45, 2), just = 0.5,
                              text = b_sidelabels, side = c("l", "r"), stringsAsFactors = F)
