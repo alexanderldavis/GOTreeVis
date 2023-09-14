@@ -35,6 +35,10 @@
 #' @param plot_size         Plot size, passed to ggsave for both height and width; changes of this value will likely require adjustments of label_size. [default: 8]
 #' @param label_size        Adjusts the font size of all labels in the plot. [default: 4]
 #' @param expand_x          [default: (0.1,0.1)] can be used to expand the plot area on each side in case of long labels
+#' @param ticks_every_l     Create ticks every n orders of magnitude [default: 5]
+#' @param ticks_every_r     Create ticks every n orders of magnitude [default: 5]
+#' @param custom_min_pvalue_l     Set a custom minimum p-value for the left side [default: 5]
+#' @param custom_min_pvalue_r     Set a custom minimum p-value for the right side [default: 5]
 #'
 #' @return PDF file (out_file)
 #' @import ggplot2
@@ -47,7 +51,9 @@ GOTreeVis <- function(disp_data, out_file,
                          pval_scaling = NA, br_spacing = NA,
                          tr_width = 4, br_min_size = 2, br_max_size = 4,
                          br_angle = 1/7, br_textoffset_x = 0, br_textoffset_y = 0, br_offset = NA,
-                         plot_size = 8, label_size = 4, expand_x = c(0.1, 0.1)) {
+                         plot_size = 8, label_size = 4, expand_x = c(0.1, 0.1),
+                         ticks_every_l = 5, ticks_every_r = 5,
+                         custom_min_pvalue_l = 5, custom_min_pvalue_r = 5) {
     # internal parameters
     tr_x <- 0
     tr_yst <- 0
@@ -179,8 +185,8 @@ GOTreeVis <- function(disp_data, out_file,
       max_pval_r <- max_pval_l
     }
     # maximum p value displayed on the axis (next multiple of 5 after the maximum in the data; at least 10^-10)
-    ax_pval_max_l <- max(10, ceiling(max_pval_l/5) * 5)
-    ax_pval_max_r <- max(10, ceiling(max_pval_r/5) * 5)
+    ax_pval_max_l <- max(custom_min_pvalue_l, ceiling(max_pval_l/5) * ticks_every_l)
+    ax_pval_max_r <- max(custom_min_pvalue_r, ceiling(max_pval_r/5) * ticks_every_r)
 
     if(is.na(pval_scaling)) {
       sum_x <- ax_pval_max_l + ifelse(is.null(oneside), ax_pval_max_r, 0)
@@ -217,7 +223,7 @@ GOTreeVis <- function(disp_data, out_file,
     # define length of axis by scaling the maximum values displayed
     ax_len_l <- fact_pval_to_xlen * ax_pval_max_l
     ax_len_r <- fact_pval_to_xlen * ax_pval_max_r
-    tick_x <- c(-seq(5, ax_pval_max_l, 5), seq(5, ax_pval_max_r, 5))  # create ticks every 5 orders of magnitude
+    tick_x <- c(-seq(ticks_every_l, ax_pval_max_l, ticks_every_l), seq(ticks_every_r, ax_pval_max_r, ticks_every_r))  # create ticks every n orders of magnitude
 
     baseaxis <- data.frame(xst = c(tr_x_l - ax_len_l, tr_x_r), yst = tr_yst, angle = 0,
                            len = c(ax_len_l, ax_len_r), text = "", stringsAsFactors = F)
